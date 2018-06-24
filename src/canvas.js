@@ -1,13 +1,11 @@
 import utils from './utils';
 
 const canvas = document.getElementById('canv');
-canvas.width = window.innerWidth - 20;
-canvas.height = window.innerHeight -  20;
 const c = canvas.getContext('2d');
-const circlesCount = 100;
-const circles = [];
+let circles = [];
+const stickyBall = new Circle(null, null, 0, 0, 50, 'red');
 
-function Circle(x, y, dx, dy, radius, color )  {
+function Circle(x, y, dx, dy, radius, color)  {
   this.x = x;
   this.y = y;
   this.dx = dx;
@@ -40,19 +38,29 @@ function Circle(x, y, dx, dy, radius, color )  {
   }
 }
 
-for (let i = 0; i< circlesCount; i++) {
-  const radius = utils.randomIntFromRange(5, 40);
-  const x = utils.randomIntFromRange(radius, canvas.width - radius);
-  const y = utils.randomIntFromRange(radius, canvas.height - radius);
-  const dx = utils.randomIntFromRange(-3, 3);
-  const dy = utils.randomIntFromRange(-3, 4);
-  const randomColor = utils.randomColor();
-  circles.push(new Circle(x, y, dx, dy, radius, randomColor));
-}
+const init = () => {
+  circles = [];
+  const circlesCount = utils.randomIntFromRange(3, 10);
+  canvas.width = window.innerWidth - 20;
+  canvas.height = window.innerHeight -  20;
+  for (let i = 0; i< circlesCount; i++) {
+    const radius = utils.randomIntFromRange(5, 40);
+    const x = utils.randomIntFromRange(radius, canvas.width - radius);
+    const y = utils.randomIntFromRange(radius, canvas.height - radius);
+    const dx = utils.randomIntFromRange(-3, 3);
+    const dy = utils.randomIntFromRange(-3, 4);
+    const randomColor = utils.randomColor();
+    c.clearRect(0,0, innerWidth, innerHeight);
+    circles.push(new Circle(x, y, dx, dy, radius, randomColor));
+  }
+};
+
+
 // animating
 const animate = () => {
   requestAnimationFrame(animate);
   c.clearRect(0,0, innerWidth, innerHeight);
+  stickyBall.draw();
   circles.forEach(circle => circle.animate())
 };
 
@@ -62,7 +70,16 @@ const changeDirection = () => {
     circle.dy = -circle.dy + utils.randomIntFromRange(1, 30);
   })
 };
-// animate();
-window.addEventListener('load', animate);
 
+const onMouseMove = (e) => {
+  stickyBall.x = e.clientX;
+  stickyBall.y = e.clientY;
+};
+
+window.addEventListener('load', init);
+window.addEventListener('resize', init);
 window.addEventListener('click', changeDirection);
+window.addEventListener('mousemove', onMouseMove);
+stickyBall.draw();
+
+animate();
